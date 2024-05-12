@@ -1,0 +1,34 @@
+import argparse
+from pathlib import Path
+import exifread as ef
+from datetime import datetime
+
+allowed = (".jpg", ".jpeg", ".JPG", ".JPEG")
+
+parser = argparse.ArgumentParser(prog="TP11a_2.py")
+
+
+parser.add_argument("-p", "--path", help="Type the path to the folder: C://...")
+
+args = parser.parse_args()
+
+if args.path is not None:
+	path = Path(args.path)
+	file = path.iterdir()
+else:
+	path = Path("/etc")
+	file = path.iterdir()
+	
+for i in file:
+	if Path(i).suffix in allowed:
+		with open(i, "rb") as f:
+			tags = ef.process_file(f)
+				
+			for tag in tags.keys():
+				if tag not in ("JPEGThumbnail", "TIFFThumbnail", "Filename", "EXIF MakerNote"):
+					print(f"Key: {tag}, value {tags[tag]}")
+					
+					if tag == "EXIF DateTimeOriginal":
+						d = str(tags[tag])
+						date = datetime.strptime(d, "%Y:%m:%d %H:%M:%S")
+						
